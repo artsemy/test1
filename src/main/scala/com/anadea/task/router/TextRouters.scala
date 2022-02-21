@@ -8,8 +8,6 @@ import com.anadea.task.router.MarshalResponse.marshalResponse
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
-import org.http4s.dsl.Http4sDsl
-import org.http4s.util.CaseInsensitiveString
 
 object TextRouters {
 
@@ -18,7 +16,7 @@ object TextRouters {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
-    def create(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root / "create" =>
+    def create(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ POST -> Root / "create" =>
       val res = for {
         pageNoteDto <- req.as[PageNoteDto]
         created     <- services.noteService.createNote(pageNoteDto)
@@ -31,7 +29,7 @@ object TextRouters {
       marshalResponse(res)
     }
 
-    def update(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root / "update" / id =>
+    def update(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ POST -> Root / "update" / id =>
       val res = for {
         pageNoteDto <- req.as[PageNoteDto]
         updated     <- services.noteService.updateNote(id, pageNoteDto)

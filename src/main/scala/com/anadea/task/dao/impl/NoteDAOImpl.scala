@@ -68,12 +68,14 @@ class NoteDAOImpl[F[_]: Functor: Bracket[*[_], Throwable]](tx: Transactor[F]) ex
   }
 
   override def readAllLabels(): F[Map[Long, String]] = {
-    val fr = fr"select id, menu_label from notes"
+    //missing order
+    val fr = fr"select id, menu_label from notes order by priority"
     fr.query[(Long, String)].toMap.transact(tx)
   }
 
   override def readPublishedLabels(todayDate: LocalDate): F[Map[Long, String]] = {
-    val fr = fr"select id, menu_label from notes where published_at < $todayDate"
+    //missing order
+    val fr = fr"select id, menu_label from notes where published_at < $todayDate order by priority"
     fr.query[(Long, String)].toMap.transact(tx)
   }
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>adding</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+
+    <div id="vue">
+      <p>input title</p>
+      <input type="text" size="30" v-model="dto.title">
+
+      <p>input description</p>
+      <input type="text" size="30" v-model="dto.description">
+
+      <p>input slug</p>
+      <input type="text" size="30" v-model="dto.slug">
+
+      <p>input menuLabel</p>
+      <input type="text" size="30" v-model="dto.menuLabel">
+
+      <p>input h1</p>
+      <input type="text" size="30" v-model="dto.h1">
+
+      <p>input publishedAt (yyyy-mm-dd)</p>
+      <input type="text" size="30" v-model="dto.publishedAt">
+
+      <p>input priority</p>
+      <input type="text" size="30" v-model="dto.priority">
+
+      <p>input contentText</p>
+      <textarea v-model="dto.contentText"></textarea>
+
+      <br>
+      <button v-on:click="create">create</button>
+    </div>
+
+    <script type="text/javascript">
+      var app = new Vue({
+        el: '#vue',
+        data: {
+          url: 'http://127.0.0.1:9000/create',
+          dto: {
+            title: 'new title',
+            description: 'new desc',
+            slug: 'new slug',
+            menuLabel: 'new label',
+            h1: 'new h1',
+            publishedAt: '2020-12-12',
+            priority: '2',
+            contentText: 'new text'
+          }
+        },
+        watch: {
+          title: function(){},
+          description: function(){},
+          slug: function(){},
+          menuLabel: function(){},
+          h1: function(){},
+          publishedAt: function(){},
+          priority: function(){},
+          contentText: function(){}
+        },
+        methods: {
+          create(){
+            axios.post(this.url, this.dto).then((response) => {
+              alert(response.data)
+              this.goToMenu(response.data)
+            });
+          },
+          goToMenu(resp){
+            if(!isNaN(resp)) {
+              window.location.href = 'menu.html'
+            }
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

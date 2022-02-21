@@ -6,6 +6,7 @@ import com.anadea.task.conf.db.{migrator, transactor}
 import com.anadea.task.modules.{Repositories, Routers, Services}
 import org.http4s.HttpApp
 import org.http4s.implicits._
+import org.http4s.server.middleware.CORS
 
 object AppContext {
 
@@ -21,6 +22,6 @@ object AppContext {
 
     routes = Routers.of[F](services).routes.orNotFound
 
-  } yield routes
+  } yield CORS(routes)
 
 }

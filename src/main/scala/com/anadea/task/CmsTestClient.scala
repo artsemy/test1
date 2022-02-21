@@ -23,7 +23,7 @@ object CmsTestClient extends IOApp {
       .use { client =>
         for {
           _  <- printLine("create")
-          id <- client.expect[Int](Method.GET(pageNoteDto, uri / "create"))
+          id <- client.expect[Int](Method.POST(pageNoteDto, uri / "create"))
           _  <- printLine("new id: " + id)
 
           _   <- printLine("read")
@@ -31,7 +31,7 @@ object CmsTestClient extends IOApp {
           _   <- printLine("read dto: " + dto.toString)
 
           _ <- printLine("update")
-          n <- client.expect[Int](Method.GET(pageNoteDto.copy(contentText = "updated"), uri / "update" / id.toString))
+          n <- client.expect[Int](Method.POST(pageNoteDto.copy(contentText = "updated"), uri / "update" / id.toString))
           _ <- printLine("update line number: " + n)
 
           _  <- printLine("delete")
