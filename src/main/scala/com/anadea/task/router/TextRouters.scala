@@ -1,17 +1,21 @@
 package com.anadea.task.router
 
-import cats.effect.Sync
+import cats.effect.{Blocker, ContextShift, Sync}
 import cats.implicits._
 import com.anadea.task.domain.PageNoteDto
 import com.anadea.task.modules.Services
 import com.anadea.task.router.MarshalResponse.marshalResponse
-import org.http4s.HttpRoutes
+import org.http4s.{HttpRoutes, MediaType, StaticFile}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
 
+import java.io.File
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
+
 object TextRouters {
 
-  def routes[F[_]: Sync](services: Services[F]): HttpRoutes[F] = {
+  def routes[F[_]: Sync: ContextShift](services: Services[F]): HttpRoutes[F] = {
 
     val dsl = new Http4sDsl[F] {}
     import dsl._
@@ -52,7 +56,40 @@ object TextRouters {
       marshalResponse(res)
     }
 
-    create() <+> read() <+> update() <+> delete() <+> allLabels() <+> publishedLabels()
+    val blockingEc = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(8))
+
+    def openMenu(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root =>
+      StaticFile
+        .fromFile[F](
+          new File("src/main/resources/templates/menu.html"),
+          Blocker.liftExecutionContext(blockingEc),
+          Some(req)
+        )
+        .getOrElseF(NotFound())
+    }
+
+    def openAdd(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root / "add" =>
+      StaticFile
+        .fromFile[F](
+          new File("src/main/resources/templates/add.html"),
+          Blocker.liftExecutionContext(blockingEc),
+          Some(req)
+        )
+        .getOrElseF(NotFound())
+    }
+
+    def openContent(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root / "content" =>
+      StaticFile
+        .fromFile[F](
+          new File("src/main/resources/templates/content.html"),
+          Blocker.liftExecutionContext(blockingEc),
+          Some(req)
+        )
+        .getOrElseF(NotFound())
+    }
+
+    create() <+> read() <+> update() <+> delete() <+> allLabels() <+> publishedLabels() <+> openMenu() <+>
+      openAdd() <+> openContent()
   }
 
 }

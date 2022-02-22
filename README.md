@@ -14,4 +14,4 @@ set postgresql
 
 run server
 
-open 'menu.html' in 'src/main/resources/templates'
+open 'http://127.0.0.1:9000'

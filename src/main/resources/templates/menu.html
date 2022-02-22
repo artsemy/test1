@@ -2,78 +2,24 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta name="description" id="description">
-    <title id="title">menu</title>
+    <title>menu</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
-    <h1 id="h1"></h1>
+
     <div id="vue">
 
-      <table>
-        <tr>
-          <th>menu</th>
-          <th>content</th>
-        </tr>
-        <tr>
-          <td>
-            <button v-on:click="changeLabels">{{menu_flag}}</button>
-            <!-- wrong order, auto-sorting by id? how to fix?
-            json order is write -->
-            <ul>
-              <li v-for="(label, id) in menu_labels" v-on:click="readNote(id)">{{label}}</li>
-            </ul>
-            <button onclick="window.location.href='add.html';">add</button>
-          </td>
-          <td>
+      <button v-on:click="changeLabels">{{menu_flag}}</button>
+      <!-- wrong order, auto-sorting by id? how to fix? -->
+      <ul>
+        <li v-for="(label, id) in menu_labels" v-on:click="openContentPage(id)">{{label}}</li>
+      </ul>
+      <button v-on:click="openAddPage">add</button>
 
-            <template v-if="current_flag">
-              <p>{{note}}</p>
-
-              <!-- not writes at very first click -->
-              <div id="htmlContent">
-
-              </div>
-
-              <button v-on:click="updateWindow">updateWindow</button>
-              <button v-on:click="deleteNote">delete</button>
-            </template>
-
-            <template v-if="update_flag">
-              <p>input title</p>
-              <input type="text" size="30" v-model="note.title">
-
-              <p>input description</p>
-              <input type="text" size="30" v-model="note.description">
-
-              <p>input slug</p>
-              <input type="text" size="30" v-model="note.slug">
-
-              <p>input menuLabel</p>
-              <input type="text" size="30" v-model="note.menuLabel">
-
-              <p>input h1</p>
-              <input type="text" size="30" v-model="note.h1">
-
-              <p>input publishedAt (yyyy-mm-dd)</p>
-              <input type="text" size="30" v-model="note.publishedAt">
-
-              <p>input priority</p>
-              <input type="text" size="30" v-model="note.priority">
-
-              <p>input contentText</p>
-              <textarea v-model="note.contentText"></textarea>
-
-              <br>
-              <button v-on:click="updateNote">update</button>
-            </template>
-          </td>
-        </tr>
-      </table>
+      <!-- <p>{{note}}</p> -->
 
     </div>
-
 
     <script type="text/javascript">
       var app = new Vue({
@@ -83,37 +29,15 @@
           url: {
             all_labels: 'http://127.0.0.1:9000/allLabels',
             published_labels: 'http://127.0.0.1:9000/publishedLabels',
-            read_note: 'http://127.0.0.1:9000/read/',
-            update_note: 'http://127.0.0.1:9000/update/',
-            delete_note: 'http://127.0.0.1:9000/delete/'
+            content_page: 'http://127.0.0.1:9000/content',
+            add_page: 'http://127.0.0.1:9000/add',
+            read_note: 'http://127.0.0.1:9000/read/'
           },
           menu_flag: false,
-          current_flag: false,
-          update_flag: false,
-          note_id: '',
-          note: {
-            title: '',
-            description: '',
-            slug: '',
-            menuLabel: '',
-            h1: '',
-            publishedAt: '',
-            priority: '',
-            contentText: ''
-          }
+          id: ''
         },
         created: function(){
           this.getPublishedLabels();
-        },
-        watch: {
-          title: function(){},
-          description: function(){},
-          slug: function(){},
-          menuLabel: function(){},
-          h1: function(){},
-          publishedAt: function(){},
-          priority: function(){},
-          contentText: function(){}
         },
         methods: {
           getAllLabels(){
@@ -136,54 +60,11 @@
             }
             this.menu_flag = !this.menu_flag
           },
-          readNote(id){
-            axios.get(this.url.read_note+id).then((response) =>
-            {
-              this.note = response.data
-              this.current_flag = true
-              this.note_id = id
-              this.setVars()
-              this.setContent()
-            });
+          openContentPage(id){
+              window.location.href = (this.url.content_page + '?id=' + id)
           },
-          updateNote(){
-            axios.post(this.url.update_note+this.note_id, this.note).then((response) =>
-            {
-              var resp = response.data
-              alert(resp)
-              if(!isNaN(resp)) {
-                this.update_flag = false
-                this.current_flag = false
-                this.updateList()
-              }
-            });
-          },
-          deleteNote(){
-            axios.get(this.url.delete_note+this.note_id).then((response) =>
-            {
-              this.note = response.data
-              alert(response.data)
-              this.current_flag = false
-              this.updateList()
-            });
-          },
-          updateWindow(){
-            this.update_flag = true
-          },
-          updateList(){
-            if (this.menu_flag) {
-              this.getAllLabels()
-            } else {
-              this.getPublishedLabels()
-            }
-          },
-          setVars(){
-            document.getElementById("h1").innerHTML = this.note.h1
-            document.getElementById("title").innerHTML = this.note.title
-            document.getElementById("description").innerHTML = this.note.description
-          },
-          setContent(){
-            document.getElementById("htmlContent").innerHTML = this.note.contentText
+          openAddPage(){
+            window.location.href = this.url.add_page
           }
         }
       })
