@@ -5,7 +5,8 @@ import cats.implicits._
 import com.anadea.task.domain.PageNoteDto
 import com.anadea.task.modules.Services
 import com.anadea.task.router.MarshalResponse.marshalResponse
-import org.http4s.{HttpRoutes, MediaType, StaticFile}
+import io.chrisdavenport.vault.Key
+import org.http4s.{Header, HttpRoutes, MediaType, StaticFile}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
 
@@ -88,8 +89,23 @@ object TextRouters {
         .getOrElseF(NotFound())
     }
 
+    def readIdBySlug(): HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root / "slug" / slug =>
+      val res = services.noteService.readIdBySlug(slug)
+      marshalResponse(res)
+    }
+
+    def openContentSlug(): HttpRoutes[F] = HttpRoutes.of[F] { case req @ GET -> Root / slug =>
+      StaticFile
+        .fromFile[F](
+          new File("src/main/resources/templates/content2.html"),
+          Blocker.liftExecutionContext(blockingEc),
+          Some(req)
+        )
+        .getOrElseF(NotFound())
+    }
+
     create() <+> read() <+> update() <+> delete() <+> allLabels() <+> publishedLabels() <+> openMenu() <+>
-      openAdd() <+> openContent()
+      openAdd() <+> openContent() <+> readIdBySlug() <+> openContentSlug()
   }
 
 }

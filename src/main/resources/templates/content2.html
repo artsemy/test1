@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" id="description">
+    <title id="title"></title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+
+    <h1 id="h1"></h1>
+    <div id="htmlContent"></div>
+
+    <div id="vue">
+
+      <p>piblished: {{note.publishedAt}}</p>
+
+      <p>priority: {{note.priority}}</p>
+
+      <button v-on:click="updateWindow">updateWindow</button>
+      <button v-on:click="deleteNote">delete</button>
+
+      <template v-if="update_flag">
+        <p>input title</p>
+        <input type="text" size="30" v-model="note.title">
+
+        <p>input description</p>
+        <input type="text" size="30" v-model="note.description">
+
+        <p>input slug</p>
+        <input type="text" size="30" v-model="note.slug">
+
+        <p>input menuLabel</p>
+        <input type="text" size="30" v-model="note.menuLabel">
+
+        <p>input h1</p>
+        <input type="text" size="30" v-model="note.h1">
+
+        <p>input publishedAt (yyyy-mm-dd)</p>
+        <input type="text" size="30" v-model="note.publishedAt">
+
+        <p>input priority</p>
+        <input type="text" size="30" v-model="note.priority">
+
+        <p>input contentText</p>
+        <textarea v-model="note.contentText"></textarea>
+
+        <br>
+        <button v-on:click="updateNote">update</button>
+      </template>
+    </div>
+
+
+    <script type="text/javascript">
+      var app = new Vue({
+        el: '#vue',
+        data: {
+          line: '',
+          url: {
+            menu_page: 'http://127.0.0.1:9000',
+            slug_page: 'http://127.0.0.1:9000/',
+            read_note: 'http://127.0.0.1:9000/read/',
+            read_by_slug: 'http://127.0.0.1:9000/slug/',
+            update_note: 'http://127.0.0.1:9000/update/',
+            delete_note: 'http://127.0.0.1:9000/delete/'
+          },
+          update_flag: false,
+          note_id: '',
+          note: {
+            title: '',
+            description: '',
+            slug: '',
+            menuLabel: '',
+            h1: '',
+            publishedAt: '',
+            priority: '',
+            contentText: ''
+          }
+        },
+        created: function(){
+          // can't find the way to pass var
+          this.line = document.location.pathname.substr(1)
+          this.readBySlug()
+        },
+        watch: {
+          title: function(){},
+          description: function(){},
+          slug: function(){},
+          menuLabel: function(){},
+          h1: function(){},
+          publishedAt: function(){},
+          priority: function(){},
+          contentText: function(){}
+        },
+        methods: {
+          readBySlug(){
+            axios.get(this.url.read_by_slug+this.line).then((response) =>
+            {
+              this.note_id = response.data
+              this.readNote(this.note_id)
+            });
+          },
+          readNote(id){
+            axios.get(this.url.read_note+id).then((response) =>
+            {
+              this.note = response.data
+              this.setVars()
+            });
+          },
+          updateNote(){
+            axios.post(this.url.update_note+this.note_id, this.note).then((response) =>
+            {
+              var resp = response.data
+              // alert(resp)
+              if(!isNaN(resp)) {
+                window.location.href = this.url.slug_page + this.note.slug
+              }
+            });
+          },
+          deleteNote(){
+            axios.get(this.url.delete_note+this.note_id).then((response) =>
+            {
+              // alert(response.data)
+              if(!isNaN(response.data)) {
+                window.location.href = this.url.menu_page
+              }
+            });
+          },
+          updateWindow(){
+            this.update_flag = true
+          },
+          setVars(){
+            document.getElementById("h1").innerHTML = this.note.h1
+            document.getElementById("title").innerHTML = this.note.title
+            document.getElementById("description").innerHTML = this.note.description
+            document.getElementById("htmlContent").innerHTML = this.note.contentText
+          }
+        }
+      })
+    </script>
+
+  </body>
+</html>

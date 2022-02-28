@@ -15,6 +15,8 @@ trait NoteDAO[F[_]] {
 
   def readAllLabels(): F[Map[Long, String]]
   def readPublishedLabels(todayDate: LocalDate): F[Map[Long, String]]
+
+  def readIdBySlug(slug: String): F[Option[Long]]
 }
 
 object NoteDAO {

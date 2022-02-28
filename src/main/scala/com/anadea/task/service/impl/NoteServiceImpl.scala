@@ -60,4 +60,13 @@ class NoteServiceImpl[F[_]: Monad: Sync](noteDAO: NoteDAO[F]) extends NoteServic
     res: Either[PageNoteError, Map[Long, String]] = resMap.asRight
     _ <- Logger[F].info("published labels: finish")
   } yield res
+
+  override def readIdBySlug(slug: String): F[Either[PageNoteError, Option[Long]]] = for {
+    _ <- Logger[F].info("read note id by slug: try")
+    res <- PageNoteValidator
+      .validateSlug(slug)
+      .traverse(noteDAO.readIdBySlug)
+    _ <- Logger[F].info("read note id by slug: finish")
+  } yield res
+
 }

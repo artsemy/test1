@@ -78,4 +78,12 @@ class NoteDAOImpl[F[_]: Functor: Bracket[*[_], Throwable]](tx: Transactor[F]) ex
     val fr = fr"select id, menu_label from notes where published_at < $todayDate order by priority"
     fr.query[(Long, String)].toMap.transact(tx)
   }
+
+  override def readIdBySlug(slug: String): F[Option[Long]] = {
+    val fr = fr"select id from notes where slug = $slug"
+    fr
+      .query[Long]
+      .option
+      .transact(tx)
+  }
 }

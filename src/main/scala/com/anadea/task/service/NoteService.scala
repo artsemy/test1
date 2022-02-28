@@ -13,6 +13,8 @@ trait NoteService[F[_]] {
 
   def readAllLabels():       F[Either[PageNoteError, Map[Long, String]]]
   def readPublishedLabels(): F[Either[PageNoteError, Map[Long, String]]]
+
+  def readIdBySlug(slug: String): F[Either[PageNoteError, Option[Long]]]
 }
 
 object NoteService {

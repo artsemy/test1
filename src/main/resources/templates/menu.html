@@ -13,7 +13,7 @@
       <button v-on:click="changeLabels">{{menu_flag}}</button>
       <!-- wrong order, auto-sorting by id? how to fix? -->
       <ul>
-        <li v-for="(label, id) in menu_labels" v-on:click="openContentPage(id)">{{label}}</li>
+        <li v-for="(label, id) in menu_labels" v-on:click="openSlug(id)">{{label}}</li>
       </ul>
       <button v-on:click="openAddPage">add</button>
 
@@ -31,6 +31,7 @@
             published_labels: 'http://127.0.0.1:9000/publishedLabels',
             content_page: 'http://127.0.0.1:9000/content',
             add_page: 'http://127.0.0.1:9000/add',
+            slug_page: 'http://127.0.0.1:9000/',
             read_note: 'http://127.0.0.1:9000/read/'
           },
           menu_flag: false,
@@ -60,11 +61,15 @@
             }
             this.menu_flag = !this.menu_flag
           },
-          openContentPage(id){
-              window.location.href = (this.url.content_page + '?id=' + id)
-          },
           openAddPage(){
             window.location.href = this.url.add_page
+          },
+          openSlug(id){
+            axios.get(this.url.read_note+id).then((response) =>
+            {
+              var sl = response.data.slug
+              window.location.href = this.url.slug_page + sl
+            });
           }
         }
       })
