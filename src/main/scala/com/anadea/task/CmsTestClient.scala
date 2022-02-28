@@ -45,6 +45,10 @@ object CmsTestClient extends IOApp {
           _  <- printLine("published labels")
           m2 <- client.expect[Map[Long, String]](Method.GET(uri / "publishedLabels"))
           _  <- printLine("published label map size 2 == " + m2.size)
+
+          _      <- printLine("id by slug")
+          idSlug <- client.expect[Option[Long]](Method.GET(uri / "slug" / "slug1"))
+          _      <- printLine("id = 1 = " + idSlug.getOrElse(-1))
         } yield ()
       }
       .as(ExitCode.Success)

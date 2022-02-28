@@ -177,6 +177,20 @@ class NoteServiceImplTest extends AnyFreeSpec with MockFactory {
       assert(actual == expected)
     }
 
+    "getIdBySlug" in {
+      val noteDAO     = mock[NoteDAO[IO]]
+      val noteService = new NoteServiceImpl[IO](noteDAO)
+
+      val validSlug = "slug"
+      val expected: Either[PageNoteError, Option[Long]] = Right(Some(1))
+
+      (noteDAO.readIdBySlug _).expects(*).returning(IO(Some(1))).once()
+
+      val actual = noteService.readIdBySlug(validSlug).unsafeRunSync()
+
+      assert(actual == expected)
+    }
+
   }
 
 }
